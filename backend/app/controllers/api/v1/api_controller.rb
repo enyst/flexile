@@ -15,6 +15,10 @@ class Api::V1::ApiController < Api::V1::BaseController
     @current_user ||= User.find_by(clerk_id: clerk_user.id)
   end
 
+  def current_company
+    @current_company ||= current_user.company
+  end
+
   def clerk_user
     @clerk_user ||= request.env['clerk'].user
   end

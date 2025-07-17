@@ -7,20 +7,20 @@ class Api::V1::PeopleController < Api::V1::ApiController
 
   def index
     @people = policy_scope(User)
-    render json: @people
+    render json: UserPresenter.new(@people).present
   end
 
   def show
     authorize @person
-    render json: @person
+    render json: UserPresenter.new(@person).present
   end
 
   def create
+    authorize User
     @person = User.new(person_params)
-    authorize @person
 
     if @person.save
-      render json: @person, status: :created
+      render json: UserPresenter.new(@person).present, status: :created
     else
       render json: @person.errors, status: :unprocessable_entity
     end
@@ -29,7 +29,7 @@ class Api::V1::PeopleController < Api::V1::ApiController
   def update
     authorize @person
     if @person.update(person_params)
-      render json: @person
+      render json: UserPresenter.new(@person).present
     else
       render json: @person.errors, status: :unprocessable_entity
     end
@@ -38,6 +38,7 @@ class Api::V1::PeopleController < Api::V1::ApiController
   def destroy
     authorize @person
     @person.destroy
+    head :no_content
   end
 
   private

@@ -7,20 +7,20 @@ class Api::V1::StockBuybacksController < Api::V1::ApiController
 
   def index
     @stock_buybacks = policy_scope(EquityBuyback)
-    render json: @stock_buybacks
+    render json: EquityBuybackPresenter.new(@stock_buybacks).present
   end
 
   def show
     authorize @stock_buyback
-    render json: @stock_buyback
+    render json: EquityBuybackPresenter.new(@stock_buyback).present
   end
 
   def create
+    authorize EquityBuyback
     @stock_buyback = EquityBuyback.new(stock_buyback_params)
-    authorize @stock_buyback
 
     if @stock_buyback.save
-      render json: @stock_buyback, status: :created
+      render json: EquityBuybackPresenter.new(@stock_buyback).present, status: :created
     else
       render json: @stock_buyback.errors, status: :unprocessable_entity
     end
@@ -29,7 +29,7 @@ class Api::V1::StockBuybacksController < Api::V1::ApiController
   def update
     authorize @stock_buyback
     if @stock_buyback.update(stock_buyback_params)
-      render json: @stock_buyback
+      render json: EquityBuybackPresenter.new(@stock_buyback).present
     else
       render json: @stock_buyback.errors, status: :unprocessable_entity
     end
@@ -38,6 +38,7 @@ class Api::V1::StockBuybacksController < Api::V1::ApiController
   def destroy
     authorize @stock_buyback
     @stock_buyback.destroy
+    head :no_content
   end
 
   private

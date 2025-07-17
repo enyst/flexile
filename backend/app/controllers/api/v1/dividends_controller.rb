@@ -7,20 +7,20 @@ class Api::V1::DividendsController < Api::V1::ApiController
 
   def index
     @dividends = policy_scope(Dividend)
-    render json: @dividends
+    render json: DividendPresenter.new(@dividends).present
   end
 
   def show
     authorize @dividend
-    render json: @dividend
+    render json: DividendPresenter.new(@dividend).present
   end
 
   def create
+    authorize Dividend
     @dividend = Dividend.new(dividend_params)
-    authorize @dividend
 
     if @dividend.save
-      render json: @dividend, status: :created
+      render json: DividendPresenter.new(@dividend).present, status: :created
     else
       render json: @dividend.errors, status: :unprocessable_entity
     end
@@ -29,7 +29,7 @@ class Api::V1::DividendsController < Api::V1::ApiController
   def update
     authorize @dividend
     if @dividend.update(dividend_params)
-      render json: @dividend
+      render json: DividendPresenter.new(@dividend).present
     else
       render json: @dividend.errors, status: :unprocessable_entity
     end
@@ -38,6 +38,7 @@ class Api::V1::DividendsController < Api::V1::ApiController
   def destroy
     authorize @dividend
     @dividend.destroy
+    head :no_content
   end
 
   private

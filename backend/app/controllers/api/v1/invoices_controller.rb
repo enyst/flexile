@@ -7,37 +7,49 @@ class Api::V1::InvoicesController < Api::V1::ApiController
 
   def index
     @invoices = policy_scope(Invoice)
-    render json: @invoices
+    render json: InvoicePresenter.new(@invoices).present
   end
 
   def show
     authorize @invoice
-    render json: @invoice
+    render json: InvoicePresenter.new(@invoice).present
   end
 
   def create
-    @invoice = Invoice.new(invoice_params)
-    authorize @invoice
+    authorize Invoice
+    result = CreateOrUpdateInvoiceService.new(
+      params: invoice_params,
+      user: Current.user,
+      company: Current.company
+    ).process
 
-    if @invoice.save
-      render json: @invoice, status: :created
+    if result[:success]
+      render json: InvoicePresenter.new(result[:invoice]).present, status: :created
     else
-      render json: @invoice.errors, status: :unprocessable_entity
+      render json: { error_message: result[:error_message] }, status: :unprocessable_entity
     end
   end
 
   def update
     authorize @invoice
-    if @invoice.update(invoice_params)
-      render json: @invoice
+    result = CreateOrUpdateInvoiceService.new(
+      params: invoice_params,
+      user: Current.user,
+      company: Current.company,
+      invoice: @invoice
+    ).process
+
+    if result[:success]
+      render json: InvoicePresenter.new(result[:invoice]).present
     else
-      render json: @invoice.errors, status: :unprocessable_entity
+      render json: { error_message: result[:error_message] }, status: :unprocessable_entity
     end
   end
 
   def destroy
     authorize @invoice
     @invoice.destroy
+    head :no_content
   end
 
   private
