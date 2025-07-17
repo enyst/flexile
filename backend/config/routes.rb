@@ -65,6 +65,11 @@ Rails.application.routes.draw do
   scope module: :api, as: :api do
     constraints api_domain_constraint do
       namespace :v1 do
+        resources :invoices, only: [:index, :show, :create, :update, :destroy]
+        resources :people, only: [:index, :show, :create, :update, :destroy]
+        resources :documents, only: [:index, :show, :create, :update, :destroy]
+        resources :dividends, only: [:index, :show, :create, :update, :destroy]
+        resources :stock_buybacks, only: [:index, :show, :create, :update, :destroy]
         resources :user_leads, only: :create
       end
       namespace :helper do

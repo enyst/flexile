@@ -7,20 +7,20 @@ class Api::V1::DocumentsController < Api::V1::ApiController
 
   def index
     @documents = policy_scope(Document)
-    render json: @documents
+    render json: DocumentPresenter.new(@documents).present
   end
 
   def show
     authorize @document
-    render json: @document
+    render json: DocumentPresenter.new(@document).present
   end
 
   def create
+    authorize Document
     @document = Document.new(document_params)
-    authorize @document
 
     if @document.save
-      render json: @document, status: :created
+      render json: DocumentPresenter.new(@document).present, status: :created
     else
       render json: @document.errors, status: :unprocessable_entity
     end
@@ -29,7 +29,7 @@ class Api::V1::DocumentsController < Api::V1::ApiController
   def update
     authorize @document
     if @document.update(document_params)
-      render json: @document
+      render json: DocumentPresenter.new(@document).present
     else
       render json: @document.errors, status: :unprocessable_entity
     end
@@ -38,6 +38,7 @@ class Api::V1::DocumentsController < Api::V1::ApiController
   def destroy
     authorize @document
     @document.destroy
+    head :no_content
   end
 
   private
