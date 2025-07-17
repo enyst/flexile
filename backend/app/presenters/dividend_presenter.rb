@@ -3,24 +3,17 @@
 class DividendPresenter
   def initialize(dividend)
     @dividend = dividend
+    @company_investor = dividend.company_investor
+    @user = @company_investor.user
   end
 
-    def present
-        if @dividend.is_a?(ActiveRecord::Relation)
-            @dividend.map { |dividend| format_dividend(dividend) }
-        else
-            format_dividend(@dividend)
-        end
-    end
-
-  private
-
-  def format_dividend(dividend)
+  def props
     {
-      id: dividend.id,
-      amount: dividend.amount,
-      pay_date: dividend.pay_date,
-      company_id: dividend.company_id
+      total_amount_in_cents: @dividend.total_amount_in_cents,
+      cumulative_return: @company_investor.cumulative_dividends_roi&.to_f,
+      withheld_tax_cents: @dividend.withheld_tax_cents,
+      bank_account_last_4: @user.bank_account_for_dividends&.last_four_digits,
+      release_document: @dividend.dividend_round.release_document,
     }
   end
 end
